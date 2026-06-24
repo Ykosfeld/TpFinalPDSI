@@ -15,6 +15,9 @@
 #define TEMPO_TIRO 2.0
 #define BORDA_TIRO 4
 #define SCORE_PENALTY 0.3
+#define SCORE 500
+#define ATRASO 300
+#define NUM_STARS 100
 
 const float FPS = 100;  
 
@@ -46,7 +49,6 @@ typedef struct Ship {
 } Ship;
 
 typedef struct Hero {
-
 	Ship ship;
 	int dir_x;
 	int dir_y;
@@ -55,13 +57,18 @@ typedef struct Hero {
 
 
 typedef struct Enemy {
-
 	Ship ship;
 	float raio;
 	int active;
 
 } Enemy;
 
+typedef struct Star {
+	float x, y;
+	float vel;
+	float raio;
+	ALLEGRO_COLOR cor;
+} Star;
 
 void initTiro(Ship *s) {
 
@@ -109,12 +116,29 @@ void initEnemy(Enemy *s, int atraso) {
 	
 }
 
-void drawScenario(Hero s) {
+void initStars(Star estrelas[]) {
+	for (int i = 0; i < NUM_STARS; i++) {
+		estrelas[i].x = rand() % SCREEN_W;
+		estrelas[i].y = rand() % SCREEN_H;
+
+		estrelas[i].vel = 0.5 + ((float)(rand() % 20) / 10.0);
+
+		estrelas[i].raio = 1 + (rand() % 2);
+
+		int brilho = 100 + (rand() % 156);
+		estrelas[i].cor = al_map_rgb(brilho, brilho, brilho);
+	}
+}
+
+void drawScenario(Star estrelas[]) {
 
 	char score_txt[5];
 
 	al_clear_to_color(BKG_COLOR);
 
+	for (int i = 0; i < NUM_STARS; i++) {
+		al_draw_filled_circle(estrelas[i].x, estrelas[i].y, estrelas[i].raio, estrelas[i].cor);
+	}
 
 }
 
@@ -171,7 +195,7 @@ void updateHero(Hero *s) {
 			initTiro(&s->ship);
 	}
 
-	s->score -= 0.1;
+	s->score -= SCORE_PENALTY;
 
 }
 
@@ -180,7 +204,7 @@ void updateEnemy(Enemy *s) {
 	if (s->active) {
 		s->ship.y += s->ship.vel;
 		if (s->ship.y > SCREEN_H + s->raio) {
-			initEnemy(s, 300);
+			initEnemy(s, ATRASO);
 		}
 	}
 	if(s->ship.tiro.modo != TIRO_ATIVO) {
@@ -193,8 +217,19 @@ void updateEnemy(Enemy *s) {
 		} else {
 			initTiro(&s->ship);
 			if (!s->active) {
-				initEnemy(s, 300);
+				initEnemy(s, ATRASO);
 			}
+		}
+	}
+}
+
+void updateStars(Star estrelas[]) {
+	for (int i = 0; i < NUM_STARS; i++) {
+		estrelas[i].y += estrelas[i].vel;
+
+		if (estrelas[i].y > SCREEN_H) {
+			estrelas[i].y = 0;
+			estrelas[i].x = rand() % SCREEN_W;
 		}
 	}
 }
@@ -326,6 +361,11 @@ int main(int argc, char **argv){
 		initEnemy(&Inimigos[i], i * 250);
 	}
 
+	//cria as estrelas:
+	Star estrelas[NUM_STARS];
+	initStars(estrelas);
+
+
 	//inicia o temporizador
 	al_start_timer(timer);
 	
@@ -347,6 +387,7 @@ int main(int argc, char **argv){
         if(ev.type == ALLEGRO_EVENT_TIMER) {
 
             updateHero(&Hero);
+			updateStars(estrelas);
 			for (int i = 0; i < NUM_ENEMIES; i++) {
 				updateEnemy(&Inimigos[i]);
 				if (Inimigos[i].active) {
@@ -360,7 +401,7 @@ int main(int argc, char **argv){
 							Inimigos[i].ship.tiro.y = Inimigos[i].ship.y;
 							Inimigos[i].ship.tiro.raio = Inimigos[i].raio;
 							Inimigos[i].ship.tiro.modo = TIRO_ATIVO;
-							Hero.score += 500;
+							Hero.score += SCORE;
 						}
 					}
 					if (Hero.ship.tiro.modo == TIRO_ATIVO) {
@@ -370,7 +411,7 @@ int main(int argc, char **argv){
 							Inimigos[i].ship.tiro.y = Inimigos[i].ship.y;
 							Inimigos[i].ship.tiro.raio = Inimigos[i].raio;
 							Inimigos[i].ship.tiro.modo = TIRO_ATIVO;
-							Hero.score += 500;
+							Hero.score += SCORE;
 						}
 					}
 				}
@@ -466,7 +507,7 @@ int main(int argc, char **argv){
             redraw = false; // Reseta a permissão
 
             // Desenha tudo na ordem correta
-            drawScenario(Hero);
+            drawScenario(estrelas);
             drawHero(Hero);
 			for (int i = 0; i < NUM_ENEMIES; i++) {
 				if (Inimigos[i].active) {
@@ -488,18 +529,16 @@ int main(int argc, char **argv){
 	if (bateu_recorde) {
 			al_draw_text(FONT_32, al_map_rgb(255, 255, 0), SCREEN_W/3, SCREEN_H/2 - 70, 0, "NOVO RECORDE!");
 		}
-		char my_text[100];
-		char txt_recorde[100];
-		al_clear_to_color(al_map_rgb(0,0,0));
-	 	sprintf(my_text, "Pontuação: %d", (int)Hero.score);
-		sprintf(txt_recorde, "Recorde Atual: %d", (int)recorde);
-		al_draw_text(FONT_32, al_map_rgb(220, 30, 0), SCREEN_W/3, SCREEN_H/2 - 20, 0, my_text);
-		al_draw_text(FONT_32, al_map_rgb(50, 200, 50), SCREEN_W/3, SCREEN_H/2 + 30, 0, txt_recorde);
-
-
-		al_flip_display();
-		al_rest(3);	
- 
+	char my_text[100];
+	char txt_recorde[100];
+	al_clear_to_color(al_map_rgb(0,0,0));
+	sprintf(my_text, "Pontuação: %d", (int)Hero.score);
+	sprintf(txt_recorde, "Recorde Atual: %d", (int)recorde);
+	al_draw_text(FONT_32, al_map_rgb(220, 30, 0), SCREEN_W/3, SCREEN_H/2 - 20, 0, my_text);
+	al_draw_text(FONT_32, al_map_rgb(50, 200, 50), SCREEN_W/3, SCREEN_H/2 + 30, 0, txt_recorde);
+	al_flip_display();
+	al_rest(3);	
+	
 	al_destroy_timer(timer);
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
