@@ -4,6 +4,8 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
@@ -334,7 +336,21 @@ int main(int argc, char **argv){
 		al_destroy_display(display);
 		return -1;
 	}
-   
+
+	if (!al_install_audio()) {
+		fprintf(stderr, "failed to initialize audio!\n");
+		return -1;
+	}
+	
+	if (!al_init_acodec_addon()) {
+		fprintf(stderr, "failed to initialize audio codecs!\n");
+		return -1;
+	}
+
+	if (!al_reserve_samples(5)) {
+		fprintf(stderr, "failed to reserve samples!\n");
+		return -1;
+	}
 
 
 	//registra na fila os eventos de tela (ex: clicar no X na janela)
@@ -376,6 +392,15 @@ int main(int argc, char **argv){
 	if (arquivo_in != NULL) {
 		fscanf(arquivo_in, "%f", &recorde);
 		fclose(arquivo_in);
+	}
+
+	ALLEGRO_SAMPLE *musica_fundo = al_load_sample("song.ogg");
+	if (!musica_fundo) {
+		fprintf(stderr, "Audio clip sample not loaded!\n");
+	}
+
+	if (musica_fundo) {
+		al_play_sample(musica_fundo, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 	}
 
 	bool redraw = true;
@@ -542,6 +567,9 @@ int main(int argc, char **argv){
 	al_destroy_timer(timer);
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
+	if (musica_fundo) {
+		al_destroy_sample(musica_fundo);
+	}
    
  
 	return 0;
