@@ -564,12 +564,14 @@ int main(int argc, char **argv){
 	al_flip_display();
 	al_rest(3);	
 	
-	al_destroy_timer(timer);
-	al_destroy_display(display);
-	al_destroy_event_queue(event_queue);
 	if (musica_fundo) {
 		al_destroy_sample(musica_fundo);
 	}
+	al_destroyt(FONT_32);
+	al_destroy_event_queue(event_queue);
+	al_destroy_timer(timer);
+	al_destroy_display(display);
+	
    
  
 	return 0;
