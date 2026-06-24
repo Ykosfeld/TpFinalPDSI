@@ -186,12 +186,17 @@ void updateEnemy(Enemy *s) {
 		s->ship.tiro.y = s->ship.y;
 	}
 	else {
-		if(s->ship.tiro.timer > 0)
+		if(s->ship.tiro.timer > 0) {
 			s->ship.tiro.timer -= 1.0/FPS;
-		else
+		} else {
 			initTiro(&s->ship);
+			if (!s->active) {
+				initEnemy(s, 300);
+			}
+		}
 	}
 }
+
 
 bool checkHeroColision(Hero *h, Enemy *e) {
 	float proximoX = e->ship.x;
