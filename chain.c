@@ -27,6 +27,8 @@ const int HERO_H = 40;
 ALLEGRO_COLOR BKG_COLOR;
 ALLEGRO_FONT *FONT_32;
 
+//teste commit
+
 typedef struct Tiro {
 	int x, y;
 	float raio;
