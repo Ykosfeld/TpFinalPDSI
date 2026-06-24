@@ -414,6 +414,7 @@ int main(int argc, char **argv){
 		al_draw_text(FONT_32, al_map_rgb(238, 230, 0), SCREEN_W/2, SCREEN_H/2 - 70, ALLEGRO_ALIGN_CENTER, "Millennium Falcon Chain Blast");
 		al_draw_text(FONT_32, al_map_rgb(255, 255, 255), SCREEN_W/2, SCREEN_H/2 - 20, ALLEGRO_ALIGN_CENTER, "1 - INICIAR JOGO");
 		al_draw_text(FONT_32, al_map_rgb(255, 255, 255), SCREEN_W/2, SCREEN_H/2 + 20, ALLEGRO_ALIGN_CENTER, "2 - SAIR");
+		al_draw_text(FONT_32, al_map_rgb(0, 0, 255), SCREEN_W/2, SCREEN_H/2 + 140, ALLEGRO_ALIGN_CENTER, "made by Ykosfeld");
 		al_flip_display();
 
 		if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
