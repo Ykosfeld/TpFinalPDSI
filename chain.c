@@ -396,7 +396,7 @@ int main(int argc, char **argv){
 
 	ALLEGRO_SAMPLE *musica_fundo_jogo = al_load_sample("song_game.ogg");
 	ALLEGRO_SAMPLE *musica_fundo_menu = al_load_sample("song_menu.ogg");
-	if (!musica_fundo) {
+	if (!musica_fundo_jogo || !musica_fundo_menu) {
 		fprintf(stderr, "Audio clip sample not loaded!\n");
 	}
 
@@ -411,9 +411,9 @@ int main(int argc, char **argv){
 		al_wait_for_event(event_queue, &ev);
 
 		al_clear_to_color(al_map_rgb(0,0,0));
-		al_draw_text(FONT_32, al_map_rgb(238, 230, 0), SCREEN_W/2, SCREEN_H/2 - 10, ALLEGRO_ALIGN_CENTER, "Millenium Falcon Chain Blast");
-		al_draw_text(FONT_32, al_map_rgb(255, 255, 255), SCREEN_W/2, SCREEN_H/2 - 50, ALLEGRO_ALIGN_CENTER, "1 - INICIAR JOGO");
-		al_draw_text(FONT_32, al_map_rgb(255, 255, 255), SCREEN_W/2, SCREEN_H/2 + 50, ALLEGRO_ALIGN_CENTER, "2 - SAIR");
+		al_draw_text(FONT_32, al_map_rgb(238, 230, 0), SCREEN_W/2, SCREEN_H/2 - 70, ALLEGRO_ALIGN_CENTER, "Millennium Falcon Chain Blast");
+		al_draw_text(FONT_32, al_map_rgb(255, 255, 255), SCREEN_W/2, SCREEN_H/2 - 20, ALLEGRO_ALIGN_CENTER, "1 - INICIAR JOGO");
+		al_draw_text(FONT_32, al_map_rgb(255, 255, 255), SCREEN_W/2, SCREEN_H/2 + 20, ALLEGRO_ALIGN_CENTER, "2 - SAIR");
 		al_flip_display();
 
 		if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
@@ -422,7 +422,7 @@ int main(int argc, char **argv){
 		}
 		if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) return 0;
 	}
-
+	al_destroy_sample(musica_fundo_menu);
 	if (musica_fundo_jogo) {
 		al_play_sample(musica_fundo_jogo, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 	}
@@ -588,8 +588,8 @@ int main(int argc, char **argv){
 	al_flip_display();
 	al_rest(3);	
 	
-	if (musica_fundo) {
-		al_destroy_sample(musica_fundo);
+	if (musica_fundo_jogo) {
+		al_destroy_sample(musica_fundo_jogo);
 	}
 	al_destroy_font(FONT_32);
 	al_destroy_event_queue(event_queue);
