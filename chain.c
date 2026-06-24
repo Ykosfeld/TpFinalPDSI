@@ -171,6 +171,8 @@ void updateHero(Hero *s) {
 			initTiro(&s->ship);
 	}
 
+	s->score -= 0.1;
+
 }
 
 void updateEnemy(Enemy *s) {
@@ -328,8 +330,16 @@ int main(int argc, char **argv){
 	al_start_timer(timer);
 	
 	int playing = 1;
-	bool redraw = true;
 
+	float recorde = 0;
+	FILE *arquivo_in = fopen("recorde.txt", "r");
+	if (arquivo_in != NULL) {
+		fscanf(arquivo_in, "%f", &recorde);
+		fclose(arquivo_in);
+	}
+
+	bool redraw = true;
+	int bateu_recorde = 0;
     while(playing) {
         ALLEGRO_EVENT ev;
         al_wait_for_event(event_queue, &ev);
@@ -350,6 +360,7 @@ int main(int argc, char **argv){
 							Inimigos[i].ship.tiro.y = Inimigos[i].ship.y;
 							Inimigos[i].ship.tiro.raio = Inimigos[i].raio;
 							Inimigos[i].ship.tiro.modo = TIRO_ATIVO;
+							Hero.score += 500;
 						}
 					}
 					if (Hero.ship.tiro.modo == TIRO_ATIVO) {
@@ -359,10 +370,25 @@ int main(int argc, char **argv){
 							Inimigos[i].ship.tiro.y = Inimigos[i].ship.y;
 							Inimigos[i].ship.tiro.raio = Inimigos[i].raio;
 							Inimigos[i].ship.tiro.modo = TIRO_ATIVO;
+							Hero.score += 500;
 						}
 					}
 				}
 			}
+
+			
+			if (Hero.score > recorde) {
+				recorde = Hero.score;
+				bateu_recorde = 1; // Marca que o jogador conseguiu um novo recorde
+				
+				// Abre o arquivo em modo de escrita ("w") para salvar a nova pontuação
+				FILE *arquivo_out = fopen("recorde.txt", "w");
+				if (arquivo_out != NULL) {
+					fprintf(arquivo_out, "%f", recorde);
+					fclose(arquivo_out);
+				}
+			}
+
             redraw = true;
 
             if(!playing) {
@@ -459,11 +485,16 @@ int main(int argc, char **argv){
      
 	//procedimentos de fim de jogo (fecha a tela, limpa a memoria, etc)
 	
-
+	if (bateu_recorde) {
+			al_draw_text(FONT_32, al_map_rgb(255, 255, 0), SCREEN_W/3, SCREEN_H/2 - 70, 0, "NOVO RECORDE!");
+		}
 		char my_text[100];
+		char txt_recorde[100];
 		al_clear_to_color(al_map_rgb(0,0,0));
 	 	sprintf(my_text, "Pontuação: %d", (int)Hero.score);
-		al_draw_text(FONT_32, al_map_rgb(220, 30, 0), SCREEN_W/3, SCREEN_H/2 + 50, 0, my_text);
+		sprintf(txt_recorde, "Recorde Atual: %d", (int)recorde);
+		al_draw_text(FONT_32, al_map_rgb(220, 30, 0), SCREEN_W/3, SCREEN_H/2 - 20, 0, my_text);
+		al_draw_text(FONT_32, al_map_rgb(50, 200, 50), SCREEN_W/3, SCREEN_H/2 + 30, 0, txt_recorde);
 
 
 		al_flip_display();
