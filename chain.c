@@ -28,6 +28,7 @@ ALLEGRO_COLOR BKG_COLOR;
 ALLEGRO_FONT *FONT_32;
 
 //teste commit
+//teste commit wsl
 
 typedef struct Tiro {
 	int x, y;
